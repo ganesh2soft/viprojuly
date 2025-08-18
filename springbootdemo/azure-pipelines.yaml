@@ -44,7 +44,7 @@ stages:
         - task: AzureCLI@2
           displayName: 'Provision Azure Resources'
           inputs:
-            azureSubscription: 'ebbb7510-3f56-4222-b9c4-bdde455dfb0d'
+            azureSubscription: 'myfirstconn'
             scriptType: 'bash'
             scriptLocation: 'inlineScript'
             inlineScript: |
@@ -70,7 +70,7 @@ stages:
         - task: AzureWebApp@1
           displayName: 'Deploy Spring Boot App'
           inputs:
-            azureSubscription: 'ebbb7510-3f56-4222-b9c4-bdde455dfb0d'
+            azureSubscription: 'myfirstconn'
             appType: 'webAppLinux'
             appName: '$(APP_NAME)'
             package: '$(System.DefaultWorkingDirectory)/target/*.jar'
