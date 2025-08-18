@@ -46,7 +46,7 @@ stages:
             scriptType: 'ps'
             scriptLocation: 'inlineScript'
             inlineScript: |              
-              az appservice plan create --name $(APP_SERVICE_PLAN) --resource-group $(RESOURCE_GROUP) --sku B1 --is-linux
+              
               az webapp create --resource-group $(RESOURCE_GROUP) --plan $(APP_SERVICE_PLAN) --name $(APP_NAME) --runtime "JAVA:17-java17"
               az mysql flexible-server create --resource-group $(RESOURCE_GROUP) --name $(MYSQL_SERVER_NAME) --admin-user $(MYSQL_ADMIN) --admin-password $(MYSQL_PASSWORD) --sku-name B1 --location $(LOCATION) --storage-size 32 --version 8.0 --public-access 0.0.0.0
               az mysql flexible-server db create --resource-group $(RESOURCE_GROUP) --server-name $(MYSQL_SERVER_NAME) --database-name $(MYSQL_DB)
