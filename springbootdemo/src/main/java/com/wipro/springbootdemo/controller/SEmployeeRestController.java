@@ -28,7 +28,7 @@ import com.wipro.springbootdemo.service.SEmployeeService;
 
 @RestController
 @RequestMapping("/api/v1/semployee")
-@CrossOrigin(origins = "http://localhost:4200/")
+@CrossOrigin(origins = "*")
 public class SEmployeeRestController {
 	@Autowired
 	private SEmployeeService sEmployeeService;
@@ -37,9 +37,9 @@ public class SEmployeeRestController {
 	private SEmployeeRepository sEmployeeRepository;
 	
 	@GetMapping("/hello")
-	public ResponseEntity<String> getApp() {
+	public String getApp() {
 		
-		return new ResponseEntity<String>("WELCOME TO DEEPS AZURE CLOUD SERVER DEMO APP", HttpStatus.OK);
+		return "WELCOME TO DEEPS AZURE CLOUD SERVER DEMO APP";
 	}
 
 	@PostMapping("/createEmp")
