@@ -35,6 +35,12 @@ public class SEmployeeRestController {
 
 	@Autowired
 	private SEmployeeRepository sEmployeeRepository;
+	
+	@GetMapping("/hello")
+	public ResponseEntity<String> getApp() {
+		
+		return new ResponseEntity<String>("WELCOME TO DEEPS AZURE CLOUD SERVER DEMO APP", HttpStatus.OK);
+	}
 
 	@PostMapping("/createEmp")
 	public ResponseEntity<?> createEmployee(@RequestBody SEmployee employee) {
