@@ -27,7 +27,7 @@ stages:
 
         - task: Maven@3
           inputs:
-            mavenPomFile: 'pom.xml'
+            mavenPomFile: 'springbootdemo/pom.xml'
             goals: 'clean package'
             javaHomeOption: 'JDKVersion'
             jdkVersionOption: '1.17'
