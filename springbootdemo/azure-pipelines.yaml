@@ -1,0 +1,76 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  RESOURCE_GROUP: 'myjulyproject-rg'
+  LOCATION: 'eastus'
+  APP_SERVICE_PLAN: 'myjulyproject-plan'
+  APP_NAME: 'myjulyproject-app'
+  MYSQL_SERVER_NAME: 'myjulyprojectmysql'
+  MYSQL_ADMIN: 'dbadmin'
+  MYSQL_DB: 'myjulydb'
+
+stages:
+
+- stage: Build
+  displayName: Build Stage
+  jobs:
+    - job: BuildJob
+      displayName: Build Spring Boot App
+      steps:
+        - checkout: self
+
+        - task: Maven@3
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'clean package'
+            javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.17'
+            publishJUnitResults: true
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+- stage: Deploy
+  displayName: Deploy to Azure
+  dependsOn: Build
+  jobs:
+    - job: DeployJob
+      displayName: Provision & Deploy
+      steps:
+        - task: AzureCLI@2
+          displayName: 'Provision Azure Resources'
+          inputs:
+            azureSubscription: '<YOUR_SERVICE_CONNECTION_NAME>'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az group create --name $(RESOURCE_GROUP) --location $(LOCATION)
+              az appservice plan create --name $(APP_SERVICE_PLAN) --resource-group $(RESOURCE_GROUP) --sku B1 --is-linux
+              az webapp create --resource-group $(RESOURCE_GROUP) --plan $(APP_SERVICE_PLAN) --name $(APP_NAME) --runtime "JAVA|17-java17"
+              az mysql flexible-server create \
+                --resource-group $(RESOURCE_GROUP) \
+                --name $(MYSQL_SERVER_NAME) \
+                --admin-user $(MYSQL_ADMIN) \
+                --admin-password $(MYSQL_PASSWORD) \
+                --sku-name Standard_B1ms \
+                --location $(LOCATION) \
+                --storage-size 32 \
+                --version 8.0 \
+                --public-access 0.0.0.0
+              az mysql flexible-server db create --resource-group $(RESOURCE_GROUP) --server-name $(MYSQL_SERVER_NAME) --database-name $(MYSQL_DB)
+              az webapp config appsettings set \
+                --resource-group $(RESOURCE_GROUP) \
+                --name $(APP_NAME) \
+                --settings MYSQL_HOST=$(MYSQL_SERVER_NAME).mysql.database.azure.com MYSQL_DB=$(MYSQL_DB) MYSQL_USER=$(MYSQL_ADMIN)@$(MYSQL_SERVER_NAME) MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+
+        - task: AzureWebApp@1
+          displayName: 'Deploy Spring Boot App'
+          inputs:
+            azureSubscription: '<YOUR_SERVICE_CONNECTION_NAME>'
+            appType: 'webAppLinux'
+            appName: '$(APP_NAME)'
+            package: '$(System.DefaultWorkingDirectory)/target/*.jar'
