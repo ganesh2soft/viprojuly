@@ -4,7 +4,11 @@ trigger:
       - main
 
 pool:
+<<<<<<< HEAD
   name : local
+=======
+  name: myjuly-agent-pool
+>>>>>>> 034688404e873a1d677bca7cf9c32776b1edc08d
 
 variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
@@ -27,7 +31,7 @@ stages:
 
         - task: Maven@3
           inputs:
-            mavenPomFile: 'pom.xml'
+            mavenPomFile: 'springbootdemo/pom.xml'
             goals: 'clean package'
             javaHomeOption: 'JDKVersion'
             jdkVersionOption: '1.17'
@@ -44,8 +48,8 @@ stages:
         - task: AzureCLI@2
           displayName: 'Provision Azure Resources'
           inputs:
-            azureSubscription: '<YOUR_SERVICE_CONNECTION_NAME>'
-            scriptType: 'bash'
+            azureSubscription: 'myfirstconn'
+            scriptType: 'ps'
             scriptLocation: 'inlineScript'
             inlineScript: |
               az group create --name $(RESOURCE_GROUP) --location $(LOCATION)
@@ -70,7 +74,7 @@ stages:
         - task: AzureWebApp@1
           displayName: 'Deploy Spring Boot App'
           inputs:
-            azureSubscription: '<YOUR_SERVICE_CONNECTION_NAME>'
+            azureSubscription: 'myfirstconn'
             appType: 'webAppLinux'
             appName: '$(APP_NAME)'
             package: '$(System.DefaultWorkingDirectory)/target/*.jar'
