@@ -45,7 +45,7 @@ stages:
           displayName: 'Provision Azure Resources'
           inputs:
             azureSubscription: 'myfirstconn'
-            scriptType: 'bash'
+            scriptType: 'ps'
             scriptLocation: 'inlineScript'
             inlineScript: |
               az group create --name $(RESOURCE_GROUP) --location $(LOCATION)
