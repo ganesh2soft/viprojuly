@@ -14,7 +14,7 @@ variables:
   MYSQL_ADMIN: 'dbadmin'
   MYSQL_DB: 'myjulydb'
   MYSQL_PASSWORD: 'P@ssw0rd'
-  LOCATION: 'centralus'
+  LOCATION: 'eastus'
   
   
 
