@@ -4,11 +4,10 @@ trigger:
       - main
 
 pool:
-<<<<<<< HEAD
-  name : local
-=======
+
+
   name: myjuly-agent-pool
->>>>>>> 034688404e873a1d677bca7cf9c32776b1edc08d
+
 
 variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
