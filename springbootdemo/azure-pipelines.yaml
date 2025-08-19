@@ -80,16 +80,20 @@ stages:
                    exit 1
                }
                           
-              az mysql flexible-server db create --resource-group $(RESOURCE_GROUP) --server-name $(MYSQL_SERVER_NAME) --database-name $(MYSQL_DB)
-              Write-Output "DB schema Creation Stage Completed"
+              $mysqlHost = "$env:MYSQL_SERVER_NAME.mysql.database.azure.com"
+              $mysqlDb = "$env:MYSQL_DB"
+              $mysqlUser = "$env:MYSQL_ADMIN@$env:MYSQL_SERVER_NAME"
+              $mysqlPassword = "$env:MYSQL_PASSWORD"
+               
               az webapp config appsettings set `
-                --resource-group $(RESOURCE_GROUP) `
-                --name $(APP_NAME) `
-                --settings `
-                  MYSQL_HOST=$(MYSQL_SERVER_NAME).mysql.database.azure.com `
-                  MYSQL_DB=$(MYSQL_DB) `
-                  MYSQL_USER=$(MYSQL_ADMIN)@$(MYSQL_SERVER_NAME) `
-                  MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+                 --resource-group $env:RESOURCE_GROUP `
+                 --name $env:APP_NAME `
+                 --settings `
+                   MYSQL_HOST=$mysqlHost `
+                   MYSQL_DB=$mysqlDb `
+                   MYSQL_USER=$mysqlUser `
+                   MYSQL_PASSWORD=$mysqlPassword
+
               Write-Output "✅ WebApp mapped to related DB credentials Stage Completed"
               $webappUrl = az webapp show --name $(APP_NAME) --resource-group $(RESOURCE_GROUP) --query defaultHostName -o tsv
               Write-Output "🌐 WebApp URL: https://$webappUrl"
