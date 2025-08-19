@@ -111,10 +111,10 @@ stages:
                 --resource-group $env:RESOURCE_GROUP `
                 --name $env:APP_NAME `
                 --settings `
-                  MYSQL_HOST=$mysqlHost `
-                  MYSQL_DB=$mysqlDb `
-                  MYSQL_USER=$mysqlUser `
-                  MYSQL_PASSWORD=$mysqlPassword
+                  "MYSQL_HOST=$mysqlHost" `
+                  "MYSQL_DB=$mysqlDb" `
+                  "MYSQL_USER=$mysqlUser" `
+                  "MYSQL_PASSWORD=$mysqlPassword" 
 
               Write-Output "✅ WebApp mapped to related DB credentials"
 
