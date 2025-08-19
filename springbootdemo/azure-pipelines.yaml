@@ -10,13 +10,11 @@ variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
   APP_SERVICE_PLAN: 'myjulyproject-plan'
   APP_NAME: 'myjulyproject-app'
-  MYSQL_SERVER_NAME: 'myjuly-mysqlserv03'
+  MYSQL_SERVER_NAME: 'myjuly-mysqlserv04'
   MYSQL_ADMIN: 'dbadmin'
   MYSQL_DB: 'myjulydb'
   MYSQL_PASSWORD: 'P@ssw0rd'
   LOCATION: 'canadacentral'
-  
-  
 
 stages:
 - stage: Build
@@ -48,57 +46,79 @@ stages:
             azureSubscription: 'myfirstconn'
             scriptType: 'ps'
             scriptLocation: 'inlineScript'
-            inlineScript: |              
-              
-              az webapp create --resource-group $(RESOURCE_GROUP) --plan $(APP_SERVICE_PLAN) --name $(APP_NAME) --runtime "JAVA:17-java17"
-              Write-Output "WebApp Creation Stage Completed"
-              az mysql flexible-server create --resource-group $(RESOURCE_GROUP) --name $(MYSQL_SERVER_NAME) --admin-user $(MYSQL_ADMIN) --admin-password $(MYSQL_PASSWORD) --sku-name Standard_B1ms --location $(LOCATION) --storage-size 32 --version 8.4 --public-access 0.0.0.0
-              $resourceGroup = "myjulyproject-rg"
-              $mysqlServerName = "myjuly-mysqlserv03"
-            
+            inlineScript: |
+              az webapp create `
+                --resource-group $env:RESOURCE_GROUP `
+                --plan $env:APP_SERVICE_PLAN `
+                --name $env:APP_NAME `
+                --runtime "JAVA:17-java17"
+              Write-Output "✅ WebApp creation completed"
+
+              az mysql flexible-server create `
+                --resource-group $env:RESOURCE_GROUP `
+                --name $env:MYSQL_SERVER_NAME `
+                --admin-user $env:MYSQL_ADMIN `
+                --admin-password $env:MYSQL_PASSWORD `
+                --sku-name Standard_B1ms `
+                --location $env:LOCATION `
+                --storage-size 32 `
+                --version 8.4 `
+                --public-access 0.0.0.0
+              Write-Output "✅ MySQL server creation initiated"
+
+              # Wait for server to be ready
               $retryCount = 0
               $maxRetries = 10
-            
+
               while ($retryCount -lt $maxRetries) {
-                   $status = az mysql flexible-server show `
-                       --resource-group $resourceGroup `
-                       --name $mysqlServerName `
-                       --query "state" -o tsv
-               
-                   if ($status -eq "Ready") {
-                       Write-Output "✅ MySQL server is ready."
-                       break
-                   }
-               
-                   Write-Output "⏳ Waiting for MySQL server to be ready... (current state: $status)"
-                   Start-Sleep -Seconds 15
-                   $retryCount++
-               }
-               
-               if ($status -ne "Ready") {
-                   Write-Output "❌ MySQL server did not become ready within expected time."
-                   exit 1
-               }
-               
-              az mysql flexible-server db create --resource-group $(RESOURCE_GROUP) --server-name $(MYSQL_SERVER_NAME) --database-name myjulydb          
-              Write-Output " DB Creation Completed "
-              $mysqlHost = "$env:MYSQL_SERVER_NAME.mysql.database.azure.com"
-              $mysqlDb = "$env:MYSQL_DB"
-              $mysqlUser = "$env:MYSQL_ADMIN@$env:MYSQL_SERVER_NAME"
-              $mysqlPassword = "$env:MYSQL_PASSWORD"
-               
+                $status = az mysql flexible-server show `
+                  --resource-group $env:RESOURCE_GROUP `
+                  --name $env:MYSQL_SERVER_NAME `
+                  --query "state" -o tsv
+
+                if ($status -eq "Ready") {
+                  Write-Output "✅ MySQL server is ready."
+                  break
+                }
+
+                Write-Output "⏳ Waiting for MySQL server to be ready... (current state: $status)"
+                Start-Sleep -Seconds 15
+                $retryCount++
+              }
+
+              if ($status -ne "Ready") {
+                Write-Output "❌ MySQL server did not become ready within expected time."
+                exit 1
+              }
+
+              # Create DB schema
+              az mysql flexible-server db create `
+                --resource-group $env:RESOURCE_GROUP `
+                --server-name $env:MYSQL_SERVER_NAME `
+                --database-name $env:MYSQL_DB
+              Write-Output "✅ DB schema creation completed"
+
+              # Set application settings
+              $mysqlHost = "$($env:MYSQL_SERVER_NAME).mysql.database.azure.com"
+              $mysqlUser = "$($env:MYSQL_ADMIN)@$($env:MYSQL_SERVER_NAME)"
+
               az webapp config appsettings set `
-                 --resource-group $env:RESOURCE_GROUP `
-                 --name $env:APP_NAME `
-                 --settings `
-                   MYSQL_HOST=$mysqlHost `
-                   MYSQL_DB=$mysqlDb `
-                   MYSQL_USER=$mysqlUser `
-                   MYSQL_PASSWORD=$mysqlPassword
-                   
-              Write-Output "✅ WebApp mapped to related DB credentials Stage Completed"
-              $webappUrl = az webapp show --name $(APP_NAME) --resource-group $(RESOURCE_GROUP) --query defaultHostName -o tsv
+                --resource-group $env:RESOURCE_GROUP `
+                --name $env:APP_NAME `
+                --settings `
+                  MYSQL_HOST=$mysqlHost `
+                  MYSQL_DB=$env:MYSQL_DB `
+                  MYSQL_USER=$mysqlUser `
+                  MYSQL_PASSWORD=$env:MYSQL_PASSWORD
+
+              Write-Output "✅ WebApp mapped to related DB credentials"
+
+              $webappUrl = az webapp show `
+                --name $env:APP_NAME `
+                --resource-group $env:RESOURCE_GROUP `
+                --query defaultHostName -o tsv
               Write-Output "🌐 WebApp URL: https://$webappUrl"
+
         - task: AzureWebApp@1
           displayName: 'Deploy Spring Boot App'
           inputs:
@@ -106,4 +126,3 @@ stages:
             appType: 'webAppLinux'
             appName: '$(APP_NAME)'
             package: '$(System.DefaultWorkingDirectory)/target/*.jar'
-            
