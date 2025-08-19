@@ -128,13 +128,13 @@ stages:
                       MYSQL_USER=$mysqlUser `
                       MYSQL_PASSWORD=$mysqlPasswordd
 
-              Write-Output " WebApp mapped to related DB credentials"
+              Write-Output " WebAppl mapped to related DB credentials"
 
               $webappUrl = az webapp show `
                 --name $env:APP_NAME `
                 --resource-group $env:RESOURCE_GROUP `
                 --query defaultHostName -o tsv
-              Write-Output " WebApp URL: https://$webappUrl"
+              Write-Output " WebAppl URL: https://$webappUrl"
 
         - task: AzureWebApp@1
           displayName: 'Deploy Spring Boot App'
