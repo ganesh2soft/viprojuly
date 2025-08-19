@@ -10,7 +10,7 @@ variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
   APP_SERVICE_PLAN: 'myjulyproject-plan'
   APP_NAME: 'myjulyproject-app'
-  MYSQL_SERVER_NAME: 'myjulyprojectmysql'
+  MYSQL_SERVER_NAME: 'myjuly-mysqlserver'
   MYSQL_ADMIN: 'dbadmin'
   MYSQL_DB: 'myjulydb'
   MYSQL_PASSWORD: 'P@ssw0rd'
@@ -53,6 +53,33 @@ stages:
               az webapp create --resource-group $(RESOURCE_GROUP) --plan $(APP_SERVICE_PLAN) --name $(APP_NAME) --runtime "JAVA:17-java17"
               Write-Output "WebApp Creation Stage Completed"
               az mysql flexible-server create --resource-group $(RESOURCE_GROUP) --name $(MYSQL_SERVER_NAME) --admin-user $(MYSQL_ADMIN) --admin-password $(MYSQL_PASSWORD) --sku-name Standard_B1ms --location $(LOCATION) --storage-size 32 --version 8.4 --public-access 0.0.0.0
+              $resourceGroup = "myjulyproject-rg"
+              $mysqlServerName = "myjuly-mysqlserver"
+            
+              $retryCount = 0
+              $maxRetries = 10
+            
+              while ($retryCount -lt $maxRetries) {
+                   $status = az mysql flexible-server show `
+                       --resource-group $resourceGroup `
+                       --name $mysqlServerName `
+                       --query "state" -o tsv
+               
+                   if ($status -eq "Ready") {
+                       Write-Output "✅ MySQL server is ready."
+                       break
+                   }
+               
+                   Write-Output "⏳ Waiting for MySQL server to be ready... (current state: $status)"
+                   Start-Sleep -Seconds 15
+                   $retryCount++
+               }
+               
+               if ($status -ne "Ready") {
+                   Write-Output "❌ MySQL server did not become ready within expected time."
+                   exit 1
+               }
+                          
               az mysql flexible-server db create --resource-group $(RESOURCE_GROUP) --server-name $(MYSQL_SERVER_NAME) --database-name $(MYSQL_DB)
               Write-Output "DB schema Creation Stage Completed"
               az webapp config appsettings set `
