@@ -32,6 +32,13 @@ stages:
             jdkVersionOption: '1.17'
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish JAR Artifact'
+          inputs:
+            pathToPublish: '$(System.DefaultWorkingDirectory)\springbootdemo\target\springbootdemo.jar'
+            artifactName: 'drop'
+            
         - script: |
             echo "Current Working Directory: $(System.DefaultWorkingDirectory)"
             cd springbootdemo\target
@@ -141,14 +148,20 @@ stages:
 
               Write-Output "🌐 WebApp URL: https://$webappUrl"
               Write-Output "-----------------END OF TASK -----Next is Deployment------------"
-
+              
+        - task: DownloadBuildArtifacts@0
+          displayName: 'Download Build Artifacts'
+          inputs:
+            artifactName: 'drop'
+        
         - task: AzureWebApp@1
           displayName: 'Deploy Deeps Spring Boot App'
           inputs:
             azureSubscription: 'myfirstconn'
             appType: 'webAppLinux'
             appName: '$(APP_NAME)'
-            package: '$(System.DefaultWorkingDirectory)/springbootdemo/target/*.jar'
+            package: '$(Pipeline.Workspace)\drop\springbootdemo.jar'
+            
             
         - powershell: |
              Write-Output "System.DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)"
