@@ -92,8 +92,8 @@ stages:
                    MYSQL_HOST=$mysqlHost `
                    MYSQL_DB=$mysqlDb `
                    MYSQL_USER=$mysqlUser `
-                   MYSQL_PASSWORD=$mysqlPasswordd
-
+                   MYSQL_PASSWORD=$mysqlPassword
+                   
               Write-Output "✅ WebApp mapped to related DB credentials Stage Completed"
               $webappUrl = az webapp show --name $(APP_NAME) --resource-group $(RESOURCE_GROUP) --query defaultHostName -o tsv
               Write-Output "🌐 WebApp URL: https://$webappUrl"
