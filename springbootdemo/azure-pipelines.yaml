@@ -32,26 +32,9 @@ stages:
             jdkVersionOption: '1.17'
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
-       - stage: Build
-  displayName: Build Stage
-  jobs:
-    - job: BuildJob
-      displayName: Build Spring Boot App
-      steps:
-        - checkout: self
-        - task: Maven@4
-          inputs:
-            mavenPomFile: 'springbootdemo/pom.xml'
-            goals: 'clean package'
-            javaHomeOption: 'JDKVersion'
-            jdkVersionOption: '1.17'
-            publishJUnitResults: true
-            testResultsFiles: '**/surefire-reports/TEST-*.xml'
-
         - script: dir springbootdemo\target
           displayName: 'List files in target directory'
           workingDirectory: $(System.DefaultWorkingDirectory)
-       
 - stage: Deploy
   displayName: Deploy to Azure
   dependsOn: Build
