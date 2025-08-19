@@ -122,16 +122,22 @@ stages:
                   "MYSQL_PASSWORD=$mysqlPassword" 
 
               Write-Output "✅ WebApp mapped to related DB credentials"
-
+              
+              az webapp config appsettings list `
+                --name "myjulyproject-app" `
+                --resource-group "myjulyproject-rg" `
+                --output table
+                
               $webappUrl = az webapp show `
                 --name $env:APP_NAME `
                 --resource-group $env:RESOURCE_GROUP `
                 --query defaultHostName -o tsv
 
               Write-Output "🌐 WebApp URL: https://$webappUrl"
+              Write-Output "-----------------END OF TASK -----Next is Deployment------------"
 
         - task: AzureWebApp@1
-          displayName: 'Deploy Spring Boot App'
+          displayName: 'Deploy Deeps Spring Boot App'
           inputs:
             azureSubscription: 'myfirstconn'
             appType: 'webAppLinux'
