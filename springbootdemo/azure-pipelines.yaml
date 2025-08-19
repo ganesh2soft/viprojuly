@@ -32,7 +32,11 @@ stages:
             jdkVersionOption: '1.17'
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
-        - script: dir springbootdemo\target
+        - script: |
+            echo "Current Working Directory: $(System.DefaultWorkingDirectory)"
+            cd springbootdemo\target
+            dir
+        
           displayName: 'List files in target directory'
           workingDirectory: $(System.DefaultWorkingDirectory)
 - stage: Deploy
