@@ -93,7 +93,7 @@ stages:
                 --resource-group $env:RESOURCE_GROUP `
                 --server-name $env:MYSQL_SERVER_NAME `
                 --name require_secure_transport `
-                --value OFFF
+                --value OFF
               Write-Output "----------------SSL enforcement disabled"
               az mysql flexible-server db create `
                 --resource-group $env:RESOURCE_GROUP `
