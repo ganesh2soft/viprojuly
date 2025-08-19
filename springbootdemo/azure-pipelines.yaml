@@ -52,7 +52,7 @@ stages:
                 --plan $env:APP_SERVICE_PLAN `
                 --name $env:APP_NAME `
                 --runtime "JAVA:17-java17"
-              Write-Output " WebApp creation completed"
+              Write-Output "✅ WebApp creation completed"
 
               az mysql flexible-server create `
                 --resource-group $env:RESOURCE_GROUP `
@@ -64,9 +64,8 @@ stages:
                 --storage-size 32 `
                 --version 8.4 `
                 --public-access 0.0.0.0
-              Write-Output " MySQL server creation initiated"
+              Write-Output "✅ MySQL server creation initiated"
 
-              # Wait for server to be ready
               $retryCount = 0
               $maxRetries = 10
 
@@ -77,64 +76,54 @@ stages:
                   --query "state" -o tsv
 
                 if ($status -eq "Ready") {
-                  Write-Output " MySQL server is ready."
+                  Write-Output "✅ MySQL server is ready."
                   break
                 }
 
-                Write-Output " Waiting for MySQL server to be ready... (current state: $status)"
+                Write-Output "⏳ Waiting for MySQL server to be ready... (current state: $status)"
                 Start-Sleep -Seconds 15
                 $retryCount++
               }
 
               if ($status -ne "Ready") {
-                Write-Output " MySQL server did not become ready within expected time."
+                Write-Output "❌ MySQL server did not become ready within expected time."
                 exit 1
               }
 
-              # Create DB schema
               az mysql flexible-server db create `
                 --resource-group $env:RESOURCE_GROUP `
                 --server-name $env:MYSQL_SERVER_NAME `
                 --database-name $env:MYSQL_DB
-              Write-Output " DB schema creation completed"
+              Write-Output "✅ DB schema creation completed"
 
-                            
-              Write-Output "RESOURCE_GROUP = $env:RESOURCE_GROUP"
-              Write-Output "APP_NAME = $env:APP_NAME"
-              Write-Output "MYSQL_SERVER_NAME = $env:MYSQL_SERVER_NAME"
-              Write-Output "MYSQL_ADMIN = $env:MYSQL_ADMIN"
-              Write-Output "MYSQL_DB = $env:MYSQL_DB"
-              Write-Output "MYSQL_PASSWORD = $env:MYSQL_PASSWORD"
-               
-              # Construct variables with proper expansion
+              # Construct variables
               $mysqlHost = "$($env:MYSQL_SERVER_NAME).mysql.database.azure.com"
               $mysqlDb = $env:MYSQL_DB
               $mysqlUser = "$($env:MYSQL_ADMIN)@$($env:MYSQL_SERVER_NAME)"
               $mysqlPassword = $env:MYSQL_PASSWORD
-               
-              Write-Output "Setting app settings with:"
+
+              Write-Output "Setting app settings:"
               Write-Output "MYSQL_HOST = $mysqlHost"
               Write-Output "MYSQL_DB = $mysqlDb"
               Write-Output "MYSQL_USER = $mysqlUser"
-              "
 
-              # Now set the app settings using the variables above
               az webapp config appsettings set `
-                 --resource-group $env:RESOURCE_GROUP `
-                 --name $env:APP_NAME `
-                 --settings `
-                     MYSQL_HOST=$mysqlHost `
-                     MYSQL_DB=$mysqlDb `
-                     MYSQL_USER=$mysqlUser `
-                     MYSQL_PASSWORD=$mysqlPassword
-                      
-              
+                --resource-group $env:RESOURCE_GROUP `
+                --name $env:APP_NAME `
+                --settings `
+                  MYSQL_HOST=$mysqlHost `
+                  MYSQL_DB=$mysqlDb `
+                  MYSQL_USER=$mysqlUser `
+                  MYSQL_PASSWORD=$mysqlPassword
+
+              Write-Output "✅ WebApp mapped to related DB credentials"
 
               $webappUrl = az webapp show `
                 --name $env:APP_NAME `
                 --resource-group $env:RESOURCE_GROUP `
                 --query defaultHostName -o tsv
-              
+
+              Write-Output "🌐 WebApp URL: https://$webappUrl"
 
         - task: AzureWebApp@1
           displayName: 'Deploy Spring Boot App'
