@@ -160,7 +160,7 @@ stages:
             azureSubscription: 'myfirstconn'
             appType: 'webAppLinux'
             appName: '$(APP_NAME)'
-            package: '$(Pipeline.Workspace)\drop\springbootdemo.jar'
+            package: '$(Pipeline.Workspace)\a\drop\springbootdemo.jar'
             
             
         - powershell: |
