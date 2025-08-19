@@ -123,13 +123,13 @@ stages:
                  --resource-group $env:RESOURCE_GROUP `
                  --name $env:APP_NAME `
                  --settings `
-                   MYSQL_HOST=$mysqlHost `
-                   MYSQL_DB=$mysqlDb `
-                   MYSQL_USER=$mysqlUser `
-                   MYSQL_PASSWORD=$mysqlPasswordd
+                      MYSQL_HOST=$mysqlHost `
+                      MYSQL_DB=$mysqlDb `
+                      MYSQL_USER=$mysqlUser `
+                      MYSQL_PASSWORD=$mysqlPasswordd
 
 
-              Write-Output " WebApp mapped to related DB credentials"
+              Write-Output "WebApp mapped to related DB credentials"
 
               $webappUrl = az webapp show `
                 --name $env:APP_NAME `
