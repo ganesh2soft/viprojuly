@@ -10,7 +10,7 @@ variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
   APP_SERVICE_PLAN: 'myjulyproject-plan'
   APP_NAME: 'myjulyproject-app'
-  MYSQL_SERVER_NAME: 'myjuly-mysqlserv05'
+  MYSQL_SERVER_NAME: 'myjuly-mysqlserv06'
   MYSQL_ADMIN: 'dbadmin'
   MYSQL_DB: 'myjulydb'
   MYSQL_PASSWORD: 'P@ssw0rd'
@@ -89,7 +89,12 @@ stages:
                 Write-Output "❌ MySQL server did not become ready within expected time."
                 exit 1
               }
-
+              az mysql flexible-server parameter set `
+                --resource-group $env:RESOURCE_GROUP `
+                --server-name $env:MYSQL_SERVER_NAME `
+                --name require_secure_transport `
+                --value OFFF
+              Write-Output "----------------SSL enforcement disabled"
               az mysql flexible-server db create `
                 --resource-group $env:RESOURCE_GROUP `
                 --server-name $env:MYSQL_SERVER_NAME `
