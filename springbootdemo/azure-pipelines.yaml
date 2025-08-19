@@ -10,7 +10,7 @@ variables:
   RESOURCE_GROUP: 'myjulyproject-rg'
   APP_SERVICE_PLAN: 'myjulyproject-plan'
   APP_NAME: 'myjulyproject-app'
-  MYSQL_SERVER_NAME: 'myjuly-mysqlserv06'
+  MYSQL_SERVER_NAME: 'myjuly-mysqlserv07'
   MYSQL_ADMIN: 'dbadmin'
   MYSQL_DB: 'myjulydb'
   MYSQL_PASSWORD: 'P@ssw0rd'
