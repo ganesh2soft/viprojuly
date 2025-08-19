@@ -98,7 +98,7 @@ stages:
                 --database-name $env:MYSQL_DB
               Write-Output " DB schema creation completed"
 
-                             # Just to verify variables first
+                            
               Write-Output "RESOURCE_GROUP = $env:RESOURCE_GROUP"
               Write-Output "APP_NAME = $env:APP_NAME"
               Write-Output "MYSQL_SERVER_NAME = $env:MYSQL_SERVER_NAME"
@@ -128,8 +128,7 @@ stages:
                       MYSQL_USER=$mysqlUser `
                       MYSQL_PASSWORD=$mysqlPasswordd
 
-
-              Write-Output "WebApp mapped to related DB credentials"
+              Write-Output " WebApp mapped to related DB credentials"
 
               $webappUrl = az webapp show `
                 --name $env:APP_NAME `
